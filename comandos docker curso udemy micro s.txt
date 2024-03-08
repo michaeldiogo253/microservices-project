@@ -1,0 +1,61 @@
+comandos docker curso udemy micro services
+------------------------------------------------------------------------------------------------
+MYSQL
+
+docker run --name mysql-docker-com-network -d -p 3306:3306 --network cursoudemy-ms -e MYSQL_ROOT_PASSWORD=253 -e MYSQL_DATABASE=estudos -e MYSQL_USER=michael -e MYSQL_PASSWORD=253 mysql 
+
+super usuario usuario root senha 253 
+------------------------------------------------------------------------------------------------
+
+keycloak:
+docker run -it --name cursoudemyrabbitmq -p 5672:5672 -p 15672:15672 rabbitmq:3.12-management
+
+docker run --name keycloak -p 8081:8080 -e KEYCLOAK_ADMIN=admin -e KEYCLOAK_ADMIN_PASSWORD=admin quay.io/keycloak/keycloak:23.0.6 start-dev
+
+docker run --name keycloak -p 8081:8080 -e KEYCLOAK_ADMIN=admin -e KEYCLOAK_ADMIN_PASSWORD=admin --network cursoudemy-ms quay.io/keycloak/keycloak:23.0.6 start-dev
+
+----------------------------------------------------------------------------------------------------------
+rodar container eureka com network 
+docker run --name eureka-container -p 8761:8761 --network cursoudemy-ms cursoms-eureka
+
+docker run --name cursoudemyrabbitmq -p 5672:5672 -p 15672:15672 --network cursoudemy-ms rabbitmq:3.12-management
+
+servico cartao:
+docker run --name cursoms-cartoes --network cursoudemy-ms cursoms-cartoes
+
+
+gerar img do servico:
+
+abrir termina na pasta raiz do projeto
+
+ rodar: docker build --tag cursoms-cartoes .
+docker run --name cursoms-cartoes --network cursoudemy-ms cursoms-cartoes
+
+rodar container passando variaveis de ambiente que sao os outros containers que o meu container vai comunicar
+
+docker run --name cursoms-cartoes --network cursoudemy-ms -e RABBITMQ_SERVER=cursoudemyrabbitmq -e MYSQL=mysql-docker-com-network -e EUREKA_SERVER=eureka-container cursoms-cartoes
+
+docker run --name cursoms-clientes --network cursoudemy-ms -e RABBITMQ_SERVER=cursoudemyrabbitmq -e MYSQL=mysql-docker-com-network -e EUREKA_SERVER=eureka-container cursoms-clientes
+
+docker run --name cursoms-avaliadorcredito --network cursoudemy-ms  -e RABBITMQ_SERVER=cursoudemyrabbitmq -e MYSQL=mysql-docker-com-network -e EUREKA_SERVER=eureka-container cursoms-avaliadorcredito
+
+variaveis de ambiente
+
+RABBITMQ_SERVER=cursoudemyrabbitmq
+
+MYSQL=mysql-docker-com-network
+
+EUREKA_SERVER=eureka-container
+
+
+GATEWAY
+
+
+docker run --name cursoms-gateway -p 8080:8080 --network cursoudemy-ms -e KEYCLOACK_SERVER=keycloack -e KEYCLOACK_PORT=8080 -e EUREKA_SERVER=eureka-container -d cursoms-gateway
+
+
+ARG EUREKA_SERVER=localhost
+ARG KEYCLOACK_SERVER=localhost
+ARG KEYCLOACK_PORT=8081
+
+
